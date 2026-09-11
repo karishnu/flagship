@@ -96,7 +96,7 @@
 		"tsdown": "^0.22.14",
 		"tsx": "^4.23.8",
 		"typescript": "^5.9.3",
-		"vitest": "^4.1.10"
+		"vitest": "^4.1.11"
 	},
 	"dependencies": {
 		"lru-cache": "^11.5.2"
