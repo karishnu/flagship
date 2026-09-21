@@ -1,0 +1,19 @@
+sdks/typescript/tests/binding-provider.test.ts
+  s_a15939d52a755c::t_c42202c87dcaae 18-20,32,471-490,673,678-683,687-688
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "767587b07bcafcbbdcfc98e6b8cf66bff185ca6f",
+  "prompts": {},
+  "sessions": {
+    "s_a15939d52a755c": {
+      "agent_id": {
+        "tool": "windsurf",
+        "id": "complete-effect",
+        "model": "unknown"
+      },
+      "human_author": "Karishnu Poddar <karishnu@cloudflare.com>"
+    }
+  }
+}
