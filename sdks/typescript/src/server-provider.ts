@@ -288,7 +288,7 @@ export class FlagshipServerProvider implements Provider {
 		try {
 			log.debug(`[Flagship] Evaluating flag "${flagKey}" via binding (expected: ${expectedType})`);
 
-			const bindingContext = toBindingContext(context, log);
+			const bindingContext = toBindingContext(context);
 			const details = await this.evaluateBinding(flagKey, defaultValue, expectedType, bindingContext);
 
 			// If the binding signals an error, map it to an OpenFeature error response.
@@ -336,25 +336,26 @@ export class FlagshipServerProvider implements Provider {
 		flagKey: string,
 		defaultValue: T,
 		expectedType: ExpectedType,
-		context: Record<string, string | number | boolean>,
+		context: Record<string, unknown>,
 	): Promise<FlagshipBindingEvaluationDetails<T>> {
 		const binding = this.binding!;
+		const compatibleContext = context as Record<string, string | number | boolean>;
 
 		switch (expectedType) {
 			case 'boolean':
-				return binding.getBooleanDetails(flagKey, defaultValue as unknown as boolean, context) as Promise<
+				return binding.getBooleanDetails(flagKey, defaultValue as unknown as boolean, compatibleContext) as Promise<
 					FlagshipBindingEvaluationDetails<T>
 				>;
 			case 'string':
-				return binding.getStringDetails(flagKey, defaultValue as unknown as string, context) as Promise<
+				return binding.getStringDetails(flagKey, defaultValue as unknown as string, compatibleContext) as Promise<
 					FlagshipBindingEvaluationDetails<T>
 				>;
 			case 'number':
-				return binding.getNumberDetails(flagKey, defaultValue as unknown as number, context) as Promise<
+				return binding.getNumberDetails(flagKey, defaultValue as unknown as number, compatibleContext) as Promise<
 					FlagshipBindingEvaluationDetails<T>
 				>;
 			case 'object':
-				return binding.getObjectDetails(flagKey, defaultValue as unknown as object, context) as Promise<
+				return binding.getObjectDetails(flagKey, defaultValue as unknown as object, compatibleContext) as Promise<
 					FlagshipBindingEvaluationDetails<T>
 				>;
 		}
@@ -403,16 +404,15 @@ function serializeContextValue(value: unknown): string {
 }
 
 /**
- * Converts an OpenFeature `EvaluationContext` to the flat primitive map that
- * the Flagship binding expects.
+ * Converts an OpenFeature `EvaluationContext` to the JSON-compatible values
+ * accepted by the Flagship binding.
  *
- * - `string`, `number`, `boolean` → pass through
  * - `Date` → ISO-8601 string
  * - `null` / `undefined` → skipped
- * - objects / arrays → skipped with a warning (when logging is enabled)
+ * - primitives, objects, and arrays → passed through
  */
-function toBindingContext(context: EvaluationContext, logger: Logger): Record<string, string | number | boolean> {
-	const result: Record<string, string | number | boolean> = {};
+function toBindingContext(context: EvaluationContext): Record<string, unknown> {
+	const result: Record<string, unknown> = {};
 
 	for (const [key, value] of Object.entries(context)) {
 		if (value === undefined || value === null) {
@@ -424,17 +424,7 @@ function toBindingContext(context: EvaluationContext, logger: Logger): Record<st
 			continue;
 		}
 
-		if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-			result[key] = value;
-			continue;
-		}
-
-		if (typeof value === 'object') {
-			logger.warn(
-				`[Flagship] Context key "${key}" is a complex object/array and cannot be passed to the binding. This value will be ignored.`,
-			);
-			continue;
-		}
+		if (typeof value !== 'function' && typeof value !== 'symbol') result[key] = value;
 	}
 
 	return result;
@@ -446,12 +436,18 @@ function toBindingContext(context: EvaluationContext, logger: Logger): Record<st
  */
 function mapBindingErrorCode(code: string): ErrorCode {
 	switch (code) {
+		case 'PROVIDER_NOT_READY':
+			return ErrorCode.PROVIDER_NOT_READY;
+		case 'PROVIDER_FATAL':
+			return ErrorCode.PROVIDER_FATAL;
 		case 'FLAG_NOT_FOUND':
 			return ErrorCode.FLAG_NOT_FOUND;
 		case 'PARSE_ERROR':
 			return ErrorCode.PARSE_ERROR;
 		case 'TYPE_MISMATCH':
 			return ErrorCode.TYPE_MISMATCH;
+		case 'TARGETING_KEY_MISSING':
+			return ErrorCode.TARGETING_KEY_MISSING;
 		case 'INVALID_CONTEXT':
 			return ErrorCode.INVALID_CONTEXT;
 		default:
