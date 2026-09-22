@@ -1,5 +1,5 @@
 ---
-'@cloudflare/flagship': patch
+'@cloudflare/flagship': minor
 ---
 
-Pass nested objects and arrays through the Workers binding evaluation context.
+Support nested objects, arrays, null, and recursively serialized dates in binding and HTTP evaluation context.

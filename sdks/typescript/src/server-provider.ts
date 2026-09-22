@@ -2,6 +2,7 @@ import type { Provider, ResolutionDetails, EvaluationContext, JsonValue, Provide
 import { ErrorCode, OpenFeatureEventEmitter } from '@openfeature/server-sdk';
 import { LRUCache } from 'lru-cache';
 import { FlagshipClient } from './client.js';
+import { normalizeEvaluationContext, type NormalizedContextValue } from './context.js';
 import {
 	FlagshipError,
 	FlagshipErrorCode,
@@ -188,7 +189,12 @@ export class FlagshipServerProvider implements Provider {
 			return this.resolve(flagKey, defaultValue, context, expectedType, logger);
 		}
 
-		const key = buildCacheKey(flagKey, expectedType, context);
+		let key: string;
+		try {
+			key = buildCacheKey(flagKey, expectedType, context);
+		} catch (error) {
+			return this.handleHttpError(flagKey, defaultValue, error, this.logger(logger));
+		}
 		const cached = this.cache.get(key) as ResolutionDetails<T> | undefined;
 		if (cached) {
 			return { ...cached, reason: 'CACHED' };
@@ -288,7 +294,7 @@ export class FlagshipServerProvider implements Provider {
 		try {
 			log.debug(`[Flagship] Evaluating flag "${flagKey}" via binding (expected: ${expectedType})`);
 
-			const bindingContext = toBindingContext(context);
+			const bindingContext = normalizeEvaluationContext(context).context;
 			const details = await this.evaluateBinding(flagKey, defaultValue, expectedType, bindingContext);
 
 			// If the binding signals an error, map it to an OpenFeature error response.
@@ -322,6 +328,7 @@ export class FlagshipServerProvider implements Provider {
 				flagMetadata: {},
 			};
 		} catch (error) {
+			if (error instanceof FlagshipError) return this.handleHttpError(flagKey, defaultValue, error, log);
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			log.error(`[Flagship] Flag "${flagKey}" binding evaluation failed (GENERAL): ${errorMessage}`);
 			return { value: defaultValue, errorCode: ErrorCode.GENERAL, errorMessage, reason: 'ERROR' };
@@ -336,7 +343,7 @@ export class FlagshipServerProvider implements Provider {
 		flagKey: string,
 		defaultValue: T,
 		expectedType: ExpectedType,
-		context: Record<string, unknown>,
+		context: Record<string, NormalizedContextValue>,
 	): Promise<FlagshipBindingEvaluationDetails<T>> {
 		const binding = this.binding!;
 		const compatibleContext = context as Record<string, string | number | boolean>;
@@ -385,7 +392,7 @@ function isCacheable(details: ResolutionDetails<unknown>): boolean {
 
 /** Stable cache key over flag key, expected type, and the evaluation context. */
 function buildCacheKey(flagKey: string, expectedType: ExpectedType, context: EvaluationContext): string {
-	const entries = Object.entries(context)
+	const entries = Object.entries(normalizeEvaluationContext(context).context)
 		.filter(([, value]) => value !== undefined && value !== null)
 		.map(([key, value]): [string, string] => [key, serializeContextValue(value)])
 		.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
@@ -401,33 +408,6 @@ function serializeContextValue(value: unknown): string {
 			? Object.fromEntries(Object.entries(val).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
 			: val,
 	);
-}
-
-/**
- * Converts an OpenFeature `EvaluationContext` to the JSON-compatible values
- * accepted by the Flagship binding.
- *
- * - `Date` → ISO-8601 string
- * - `null` / `undefined` → skipped
- * - primitives, objects, and arrays → passed through
- */
-function toBindingContext(context: EvaluationContext): Record<string, unknown> {
-	const result: Record<string, unknown> = {};
-
-	for (const [key, value] of Object.entries(context)) {
-		if (value === undefined || value === null) {
-			continue;
-		}
-
-		if (value instanceof Date) {
-			result[key] = value.toISOString();
-			continue;
-		}
-
-		if (typeof value !== 'function' && typeof value !== 'symbol') result[key] = value;
-	}
-
-	return result;
 }
 
 /**

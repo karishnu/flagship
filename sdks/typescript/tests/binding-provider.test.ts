@@ -634,7 +634,7 @@ describe('FlagshipServerProvider (binding mode)', () => {
 			});
 		});
 
-		it('should skip null and undefined values', async () => {
+		it('should preserve null and skip top-level undefined values', async () => {
 			const binding = createMockBinding();
 			const provider = new FlagshipServerProvider({ binding });
 
@@ -647,6 +647,7 @@ describe('FlagshipServerProvider (binding mode)', () => {
 
 			expect(binding.getBooleanDetails).toHaveBeenCalledWith('my-flag', false, {
 				targetingKey: 'user-1',
+				nullVal: null,
 			});
 		});
 
@@ -658,13 +659,17 @@ describe('FlagshipServerProvider (binding mode)', () => {
 			await provider.resolveBooleanEvaluation(
 				'my-flag',
 				false,
-				{ targetingKey: 'user-1', profile: { account: { plan: 'enterprise' } } as any, tags: ['beta', 'internal'] as any },
+				{
+					targetingKey: 'user-1',
+					profile: { account: { plan: 'enterprise', createdAt: new Date('2025-06-15T10:30:00.000Z') } } as any,
+					tags: ['beta', 'internal'] as any,
+				},
 				spyLogger,
 			);
 
 			expect(binding.getBooleanDetails).toHaveBeenCalledWith('my-flag', false, {
 				targetingKey: 'user-1',
-				profile: { account: { plan: 'enterprise' } },
+				profile: { account: { plan: 'enterprise', createdAt: '2025-06-15T10:30:00.000Z' } },
 				tags: ['beta', 'internal'],
 			});
 			expect(spyLogger.warn).not.toHaveBeenCalled();

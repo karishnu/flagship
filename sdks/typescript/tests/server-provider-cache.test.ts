@@ -84,6 +84,33 @@ describe('FlagshipServerProvider caching', () => {
 		expect(b.value).toBe(false);
 	});
 
+	it('shares cache entries for equivalent nested objects with different key order', async () => {
+		mockResponse(true);
+		const provider = new FlagshipServerProvider({ endpoint: 'https://api.example.com/evaluate', cacheTtl: 60_000 });
+
+		await provider.resolveBooleanEvaluation('flag', false, { profile: { plan: 'enterprise', region: 'us' } } as any, noopLogger);
+		const cached = await provider.resolveBooleanEvaluation(
+			'flag',
+			false,
+			{ profile: { region: 'us', plan: 'enterprise' } } as any,
+			noopLogger,
+		);
+
+		expect(global.fetch).toHaveBeenCalledTimes(1);
+		expect(cached.reason).toBe('CACHED');
+	});
+
+	it('keeps separate cache entries for differently ordered arrays', async () => {
+		mockResponse(true);
+		mockResponse(false);
+		const provider = new FlagshipServerProvider({ endpoint: 'https://api.example.com/evaluate', cacheTtl: 60_000 });
+
+		await provider.resolveBooleanEvaluation('flag', false, { tags: ['beta', 'internal'] } as any, noopLogger);
+		await provider.resolveBooleanEvaluation('flag', false, { tags: ['internal', 'beta'] } as any, noopLogger);
+
+		expect(global.fetch).toHaveBeenCalledTimes(2);
+	});
+
 	it('re-fetches after the TTL expires', async () => {
 		mockResponse(true);
 		mockResponse(true);
