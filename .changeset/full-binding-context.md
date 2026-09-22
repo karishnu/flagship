@@ -2,4 +2,4 @@
 '@cloudflare/flagship': patch
 ---
 
-Pass structured evaluation context through the Workers binding and preserve all binding error codes.
+Pass nested objects and arrays through the Workers binding evaluation context.
