@@ -1,0 +1,37 @@
+sdks/typescript/API.md
+  s_a15939d52a755c::t_1c7ee4cd8d44de 330,332-337,339,505,530,533,539
+sdks/typescript/README.md
+  s_a15939d52a755c::t_1358aa62a8c2a5 99-112
+sdks/typescript/src/client.ts
+  s_a15939d52a755c::t_0441b39c3991cf 2,22-26,53-54,61-67,71,80,86,95,107,126-127,169-187
+sdks/typescript/src/context.ts
+  s_a15939d52a755c::t_c8e838e4dc357f 2-78
+sdks/typescript/src/server-provider.ts
+  s_a15939d52a755c::t_6aa31a7d13fedf 5,192-197,297,331,346,395
+sdks/typescript/tests/binding-provider.test.ts
+  s_a15939d52a755c::t_1c445ba36eff20 637,650,662-666,672
+sdks/typescript/tests/client.test.ts
+  s_a15939d52a755c::t_b279bed9003e5c 129-133,136-137,139-143,145,147-164,236-252
+sdks/typescript/tests/context.test.ts
+  s_a15939d52a755c::t_2c0f8b93baca83 2-3,278-322
+sdks/typescript/tests/server-provider-cache.test.ts
+  s_a15939d52a755c::t_f5db6bb8b2f593 87-113
+sdks/typescript/tests/server-provider.test.ts
+  s_a15939d52a755c::t_612c9e04554da9 436-440,444-447,449,451-454
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4c2c9b1193a9aee27c395bcd7f6cc81969173588",
+  "prompts": {},
+  "sessions": {
+    "s_a15939d52a755c": {
+      "agent_id": {
+        "tool": "windsurf",
+        "id": "complete-effect",
+        "model": "unknown"
+      },
+      "human_author": "Karishnu Poddar <karishnu@cloudflare.com>"
+    }
+  }
+}
