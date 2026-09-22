@@ -64,6 +64,18 @@ func TestContextToQueryParamsSerializesTime(t *testing.T) {
 	}
 }
 
+func TestNormalizeContextTreatsTypedNilCollectionsAsNull(t *testing.T) {
+	var values []string
+	var object map[string]any
+	normalized, err := normalizeContext(openfeature.FlattenedContext{"values": values, "object": object})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !normalized.requiresPost || normalized.values["values"] != nil || normalized.values["object"] != nil {
+		t.Fatalf("normalized = %#v", normalized)
+	}
+}
+
 func TestNormalizeContextPreservesNestedObjectsArraysAndTimes(t *testing.T) {
 	ts := time.Date(2024, 1, 2, 3, 4, 5, 600, time.UTC)
 	normalized, err := normalizeContext(openfeature.FlattenedContext{

@@ -80,6 +80,9 @@ func normalizeContextValue(value any, path string, depth int) (any, bool, error)
 	}
 
 	reflected := reflect.ValueOf(value)
+	if (reflected.Kind() == reflect.Map || reflected.Kind() == reflect.Slice) && reflected.IsNil() {
+		return nil, true, nil
+	}
 	switch reflected.Kind() {
 	case reflect.Map:
 		if reflected.Type().Key().Kind() != reflect.String {
