@@ -1,0 +1,19 @@
+sdks/go/client_test.go
+  s_a15939d52a755c::t_e8bd1cd6960b0b 4,8,12,103-147,238-240,374-402
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "125717105ff6af9067c57b22af26f24d621c35a8",
+  "prompts": {},
+  "sessions": {
+    "s_a15939d52a755c": {
+      "agent_id": {
+        "tool": "windsurf",
+        "id": "complete-effect",
+        "model": "unknown"
+      },
+      "human_author": "Karishnu Poddar <karishnu@cloudflare.com>"
+    }
+  }
+}
