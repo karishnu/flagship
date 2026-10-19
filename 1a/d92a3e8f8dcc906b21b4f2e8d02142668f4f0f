@@ -1,0 +1,19 @@
+sdks/python/src/flagship/provider.py
+  s_58b0b62a66ac1a::t_8b386a7fdde5b7 11,141,165,207,427-429,433,438-445,451-453
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1ad92a3e8f8dcc906b21b4f2e8d02142668f4f0f",
+  "prompts": {},
+  "sessions": {
+    "s_58b0b62a66ac1a": {
+      "agent_id": {
+        "tool": "windsurf",
+        "id": "thrilling-editorial",
+        "model": "unknown"
+      },
+      "human_author": "Karishnu Poddar <karishnu@cloudflare.com>"
+    }
+  }
+}
