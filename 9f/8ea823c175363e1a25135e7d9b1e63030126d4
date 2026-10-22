@@ -1,0 +1,21 @@
+sdks/typescript/src/server-provider.ts
+  s_58b0b62a66ac1a::t_aefed8c1f1cffa 132-133,240,257,260,273,275-276,281,283,285,298,519,534,538-546,548,554,556,573,575,581,586,589
+sdks/typescript/tests/client-provider.test.ts
+  s_58b0b62a66ac1a::t_23e20b97193904 354-356,360-407
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9f8ea823c175363e1a25135e7d9b1e63030126d4",
+  "prompts": {},
+  "sessions": {
+    "s_58b0b62a66ac1a": {
+      "agent_id": {
+        "tool": "windsurf",
+        "id": "thrilling-editorial",
+        "model": "unknown"
+      },
+      "human_author": "Karishnu Poddar <karishnu@cloudflare.com>"
+    }
+  }
+}
